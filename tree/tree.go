@@ -26,7 +26,7 @@ func BuildTree(path string) []string {
 func buildTree(path string, prefix string, tree *[]string, fileStyle, dirStyle, branchStyle lipgloss.Style) {
     files, err := os.ReadDir(path)
     if err != nil {
-        *tree = append(*tree, fmt.Sprintf("Error: %v", err))
+        *tree = append(*tree, fmt.Sprintf("Error reading directory: %v", err))
         return
     }
 
@@ -34,7 +34,8 @@ func buildTree(path string, prefix string, tree *[]string, fileStyle, dirStyle, 
         return files[i].Name() < files[j].Name()
     })
 
-    for i, file := range files {
+    var validFiles []os.DirEntry
+    for _, file := range files {
         if AppConfig.HideDotFiles && strings.HasPrefix(file.Name(), ".") {
             continue
         }
@@ -43,7 +44,12 @@ func buildTree(path string, prefix string, tree *[]string, fileStyle, dirStyle, 
             continue
         }
 
-        isLast := i == len(files)-1
+        validFiles = append(validFiles, file)
+    }
+
+    for i, file := range validFiles {
+        isLast := (i == len(validFiles) - 1)
+
         branch := branchStyle.Render("├── ")
         if isLast {
             branch = branchStyle.Render("└── ")
@@ -65,5 +71,9 @@ func buildTree(path string, prefix string, tree *[]string, fileStyle, dirStyle, 
             }
             buildTree(filepath.Join(path, file.Name()), nextPrefix, tree, fileStyle, dirStyle, branchStyle)
         }
+    }
+
+    if len(*tree) > 0 {
+        *tree = append(*tree, "")
     }
 }
