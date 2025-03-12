@@ -100,6 +100,7 @@ Override config and display specific path:
 
 ```
 📂 .
+├── .env
 ├── backend/
 │   ├── cmd/
 │   │   ├── api/
@@ -125,9 +126,17 @@ Override config and display specific path:
 ├── backend/
 │   ├── cmd/
 │   │   ├── api/
+│   │   │   ├── main.go
+│   │   │   ├── handlers/
+│   │   │   └── routes/
 │   │   └── subscriber/
+│   │       ├── main.go
+│   │       └── event_handler.go
 ├── internal/
 │   ├── models/
+│   │   ├── user.go
+│   │   ├── link.go
+│   │   ├── click.go
 ```
 
 ## Example with directories only
