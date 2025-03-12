@@ -30,9 +30,8 @@ var AppConfig = Config{
 
 var hexColorPattern = regexp.MustCompile(`^#[0-9A-Fa-f]{6}$`)
 
-func validateHexColor(color string, fallback string) string {
-    color = strings.TrimSpace(color)
-    color = strings.Trim(color, `"'`)
+func validateHexColor(color, fallback string) string {
+    color = strings.TrimSpace(strings.Trim(color, `"'`))
 
     if strings.Count(color, "#") > 1 {
         color = strings.Split(color, "#")[0]
@@ -71,8 +70,7 @@ func LoadConfig() {
             continue
         }
 
-        key := strings.TrimSpace(parts[0])
-        value := strings.TrimSpace(parts[1])
+        key, value := strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
 
         switch key {
         case "color_file":
@@ -92,7 +90,5 @@ func LoadConfig() {
         }
     }
 
-    if err := scanner.Err(); err != nil {
-        return
-    }
+    _ = scanner.Err()
 }

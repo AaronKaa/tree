@@ -7,14 +7,16 @@ import (
 )
 
 type Model struct {
-    tree []string
-    path string
+    Path string
+    Tree []string
 }
 
 func NewModel(path string) Model {
-    LoadConfig()
-    tree := BuildTree(path)
-    return Model{tree: tree, path: path}
+    m := Model{Path: path}
+    m.Tree = BuildTree(path)
+    m.Tree = append(m.Tree, "")
+
+    return m
 }
 
 func (m Model) Init() tea.Cmd {
@@ -26,6 +28,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-    output := strings.Join(m.tree, "\n")
+    output := strings.Join(m.Tree, "\n")
     return output
 }

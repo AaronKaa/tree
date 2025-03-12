@@ -1,79 +1,74 @@
 package tree
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"sort"
-	"strings"
-
-	"github.com/charmbracelet/lipgloss"
+    "fmt"
+    "os"
+    "path/filepath"
+    "sort"
+    "strings"
 )
 
-func BuildTree(path string) []string {
-    var tree []string
-
-    headerStyle, fileStyle, dirStyle, branchStyle := GetStyles()
-
-    if AppConfig.ShowFolderIcon {
-        tree = append(tree, headerStyle.Render(fmt.Sprintf("📂 %s", path)))
-    }
-
-    buildTree(path, "", &tree, fileStyle, dirStyle, branchStyle)
-    return tree
-}
-
-func buildTree(path string, prefix string, tree *[]string, fileStyle, dirStyle, branchStyle lipgloss.Style) {
+func buildTree(path, prefix string, tree *[]string) {
     files, err := os.ReadDir(path)
     if err != nil {
         *tree = append(*tree, fmt.Sprintf("Error: %v", err))
         return
     }
 
-    sort.Slice(files, func(i, j int) bool {
-        return files[i].Name() < files[j].Name()
-    })
-
+    // Filter and sort files
     var validFiles []os.DirEntry
     for _, file := range files {
         if AppConfig.HideDotFiles && strings.HasPrefix(file.Name(), ".") {
             continue
         }
-
         if AppConfig.DirsOnly && !file.IsDir() {
             continue
         }
-
         validFiles = append(validFiles, file)
     }
+    sort.Slice(validFiles, func(i, j int) bool {
+        return validFiles[i].Name() < validFiles[j].Name()
+    })
+
+    // Get styles
+    _, fileStyle, dirStyle, branchStyle := GetStyles()
 
     for i, file := range validFiles {
-        isLast := (i == len(validFiles) - 1)
+        isLast := i == len(validFiles)-1
 
-        branch := branchStyle.Render("├── ")
+        // Determine branch symbol
+        branch := "├── "
         if isLast {
-            branch = branchStyle.Render("└── ")
+            branch = "└── "
         }
+        branch = branchStyle.Render(branch)
 
-        entry := branch + file.Name()
+        // Render entry
+        entry := file.Name()
         if file.IsDir() {
-            entry = branch + dirStyle.Render(file.Name())
+            entry = dirStyle.Render(entry)
         } else {
-            entry = branch + fileStyle.Render(file.Name())
+            entry = fileStyle.Render(entry)
         }
+        *tree = append(*tree, prefix+branch+entry)
 
-        *tree = append(*tree, prefix+entry)
-
+        // Recursively build tree for directories
         if file.IsDir() {
             nextPrefix := prefix + branchStyle.Render("│   ")
             if isLast {
-                nextPrefix = prefix + branchStyle.Render("    ")
+                nextPrefix = prefix + "    "
             }
-            buildTree(filepath.Join(path, file.Name()), nextPrefix, tree, fileStyle, dirStyle, branchStyle)
+            buildTree(filepath.Join(path, file.Name()), nextPrefix, tree)
         }
     }
+}
 
-    if len(*tree) > 0 {
-        *tree = append(*tree, "")
-    }
+func BuildTree(path string) []string {
+    var tree []string
+
+    headerStyle, _, _, _ := GetStyles()
+    tree = append(tree, headerStyle.Render(fmt.Sprintf("📂 %s", path)))
+
+    buildTree(path, "", &tree)
+    return tree
 }
