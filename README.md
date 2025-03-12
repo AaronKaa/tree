@@ -74,23 +74,23 @@ show_folder_icon = true
 
 Summarise directory contents
 
-    `tree --summarise`
+    tree --summarise
 
 Hide dot files:
 
-    `tree --no-dot-files`
+    tree --no-dot-files
 
 Summarise and hide dot files:
 
-    `tree --s --ndf`
+    tree --s --ndf
 
 Show dot files and avoid summarising:
 
-    `tree --df --ns`
+    tree --df --ns
 
 Override config and display specific path:
 
-    `tree ~/projects --s --ndf`
+    tree ~/projects --s --ndf
 
 ## EXAMPLES
 
