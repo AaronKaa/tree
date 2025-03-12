@@ -26,7 +26,7 @@ func BuildTree(path string) []string {
 func buildTree(path string, prefix string, tree *[]string, fileStyle, dirStyle, branchStyle lipgloss.Style) {
     files, err := os.ReadDir(path)
     if err != nil {
-        *tree = append(*tree, fmt.Sprintf("Error reading directory: %v", err))
+        *tree = append(*tree, fmt.Sprintf("Error: %v", err))
         return
     }
 

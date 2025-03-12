@@ -41,7 +41,7 @@ func main() {
     p := tea.NewProgram(m, tea.WithOutput(os.Stdout))
 
     if _, err := p.Run(); err != nil {
-        fmt.Printf("Error starting program: %v\n", err)
+        fmt.Printf("Error: %v\n", err)
         os.Exit(1)
     }
 }
