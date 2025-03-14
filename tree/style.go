@@ -18,7 +18,8 @@ func GetStyles() (headerStyle, fileStyle, dirStyle, branchStyle lipgloss.Style) 
         Bold(true)
 
     branchStyle = lipgloss.NewStyle().
-        Foreground(lipgloss.Color(AppConfig.ColorBranch))
+        Foreground(lipgloss.Color(AppConfig.ColorBranch)).
+        MarginRight(1)
 
     return
 }

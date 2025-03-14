@@ -59,6 +59,7 @@ show_folder_icon = true
 | hide_dotfiles    | Hide dot files               | true / false |
 | summarize        | Summarize directory contents | true / false |
 | show_folder_icon | Show 📂 icon at the top      | true / false |
+| folder_icon      | select a folder icon         | 📂           |
 
 ### Runtime Options
 
@@ -99,7 +100,7 @@ Override config and display specific path:
     tree
 
 ```
-📂 .
+📂 min
 ├── .env
 ├── backend/
 │   ├── cmd/
@@ -122,21 +123,7 @@ Override config and display specific path:
     tree --s --ndf
 
 ```
-📂 .
-├── backend/
-│   ├── cmd/
-│   │   ├── api/
-│   │   │   ├── main.go
-│   │   │   ├── handlers/
-│   │   │   └── routes/
-│   │   └── subscriber/
-│   │       ├── main.go
-│   │       └── event_handler.go
-├── internal/
-│   ├── models/
-│   │   ├── user.go
-│   │   ├── link.go
-│   │   ├── click.go
+📂 min (36 files, 23 directories)
 ```
 
 ## Example with directories only
@@ -144,7 +131,7 @@ Override config and display specific path:
     tree --do
 
 ```
-📂 .
+📂 min
 ├── backend/
 │   ├── cmd/
 │   │   ├── api/

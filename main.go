@@ -1,7 +1,6 @@
 package main
 
 import (
-    "fmt"
     "os"
 
     tea "github.com/charmbracelet/bubbletea"
@@ -37,10 +36,6 @@ func main() {
     }
 
     m := tree.NewModel(path)
-    p := tea.NewProgram(m, tea.WithOutput(os.Stdout))
-
-    if _, err := p.Run(); err != nil {
-        fmt.Printf("Error: %v\n", err)
-        os.Exit(1)
-    }
+    p := tea.NewProgram(m)
+    p.Run()
 }

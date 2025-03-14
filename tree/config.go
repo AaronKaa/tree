@@ -16,6 +16,7 @@ type Config struct {
     Summarize       bool
     ShowFolderIcon  bool
     DirsOnly        bool
+    FolderIcon      string
 }
 
 var AppConfig = Config{
@@ -26,6 +27,7 @@ var AppConfig = Config{
     Summarize:      false,
     ShowFolderIcon: true,
     DirsOnly:       false,
+    FolderIcon:     "📂",
 }
 
 var hexColorPattern = regexp.MustCompile(`^#[0-9A-Fa-f]{6}$`)
@@ -87,6 +89,8 @@ func LoadConfig() {
             AppConfig.ShowFolderIcon = (value == "true")
         case "dirs_only":
             AppConfig.DirsOnly = (value == "true")
+        case "folder_icon":
+            AppConfig.FolderIcon = value
         }
     }
 

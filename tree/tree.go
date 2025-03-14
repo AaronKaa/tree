@@ -6,69 +6,89 @@ import (
     "path/filepath"
     "sort"
     "strings"
+
+    liptree "github.com/charmbracelet/lipgloss/tree"
 )
 
-func buildTree(path, prefix string, tree *[]string) {
+func buildTree(node *liptree.Tree, path string) (int, int) {
     files, err := os.ReadDir(path)
     if err != nil {
-        *tree = append(*tree, fmt.Sprintf("Error: %v", err))
-        return
+        return 0, 0
     }
 
-    // Filter and sort files
-    var validFiles []os.DirEntry
+    sort.Slice(files, func(i, j int) bool {
+        return files[i].Name() < files[j].Name()
+    })
+
+    _, fileStyle, dirStyle, _ := GetStyles()
+
+    fileCount := 0
+    dirCount := 0
+
     for _, file := range files {
         if AppConfig.HideDotFiles && strings.HasPrefix(file.Name(), ".") {
             continue
         }
+
         if AppConfig.DirsOnly && !file.IsDir() {
             continue
         }
-        validFiles = append(validFiles, file)
-    }
-    sort.Slice(validFiles, func(i, j int) bool {
-        return validFiles[i].Name() < validFiles[j].Name()
-    })
 
-    // Get styles
-    _, fileStyle, dirStyle, branchStyle := GetStyles()
-
-    for i, file := range validFiles {
-        isLast := i == len(validFiles)-1
-
-        // Determine branch symbol
-        branch := "├── "
-        if isLast {
-            branch = "└── "
-        }
-        branch = branchStyle.Render(branch)
-
-        // Render entry
-        entry := file.Name()
         if file.IsDir() {
-            entry = dirStyle.Render(entry)
-        } else {
-            entry = fileStyle.Render(entry)
-        }
-        *tree = append(*tree, prefix+branch+entry)
+            dirCount++
+            name := file.Name()
 
-        // Recursively build tree for directories
-        if file.IsDir() {
-            nextPrefix := prefix + branchStyle.Render("│   ")
-            if isLast {
-                nextPrefix = prefix + "    "
+            child := liptree.New().
+                Root(dirStyle.Render(name))
+
+            childFiles, childDirs := buildTree(child, filepath.Join(path, file.Name()))
+
+            if !AppConfig.Summarize {
+                node.Child(child)
             }
-            buildTree(filepath.Join(path, file.Name()), nextPrefix, tree)
+
+            fileCount += childFiles
+            dirCount += childDirs
+        } else {
+            fileCount++
+            if !AppConfig.DirsOnly {
+                node.Child(
+                    liptree.New().
+                        Root(fileStyle.Render(file.Name())),
+                )
+            }
         }
     }
+
+    return fileCount, dirCount
 }
 
-func BuildTree(path string) []string {
-    var tree []string
+func BuildTree(path string) *liptree.Tree {
+    _, _, _, branchStyle := GetStyles()
 
-    headerStyle, _, _, _ := GetStyles()
-    tree = append(tree, headerStyle.Render(fmt.Sprintf("📂 %s", path)))
+    if path == "." {
+        absPath, err := filepath.Abs(path)
+        if err == nil {
+            path = absPath
+        }
+    }
 
-    buildTree(path, "", &tree)
-    return tree
+    rootName := filepath.Base(path)
+
+    if AppConfig.ShowFolderIcon {
+        rootName = fmt.Sprintf("%s %s", AppConfig.FolderIcon, rootName)
+    }
+
+    root := liptree.New().
+        Root(branchStyle.Render(rootName))
+
+    fileCount, dirCount := buildTree(root, path)
+
+    if AppConfig.Summarize {
+        summary := fmt.Sprintf("(%d files, %d directories)", fileCount, dirCount)
+        rootName = fmt.Sprintf("%s %s", rootName, summary)
+        root = liptree.New().Root(branchStyle.Render(rootName))
+    }
+
+    return root
 }
